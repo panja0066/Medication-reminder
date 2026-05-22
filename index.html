@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스마트 약 복용 알리미</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  color: #0f172a;
+}
+
+.phone {
+  width: 100%;
+  max-width: 420px;
+}
+
+.menu {
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+  border-radius: 24px;
+  margin-bottom: 20px;
+}
+
+.menu h1 {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.menu-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.menu-buttons button {
+  border: none;
+  border-radius: 16px;
+  padding: 10px;
+  background: #334155;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.menu-buttons button.active {
+  background: white;
+  color: #0f172a;
+}
+
+.section {
+  display: none;
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.section.active {
+  display: block;
+}
+
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+}
+
+.main-button {
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 14px;
+  background: #0f172a;
+  color: white;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.card {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.timer-box {
+  margin-top: 12px;
+  background: #10b981;
+  color: white;
+  border-radius: 18px;
+  padding: 12px;
+  text-align: center;
+}
+
+.symptoms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.symptoms button {
+  border: none;
+  border-radius: 999px;
+  background: #e2e8f0;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.recommend-box,
+.empty {
+  background: #f1f5f9;
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 18px;
+  line-height: 1.7;
+}
+</style>
+
+</head>
+
+<body>
+<div class="phone">
+
+<div class="menu">
+<h1>스마트 약 복용 알리미</h1>
+
+<div class="menu-buttons">
+<button class="active" onclick="showMenu('info', this)">정보</button>
+<button onclick="showMenu('schedule', this)">스케줄</button>
+<button onclick="showMenu('medicine', this)">약찾기</button>
+<button onclick="showMenu('pharmacy', this)">약국</button>
+</div>
+</div>
+
+<div id="info" class="section active">
+<h2>사용자 정보</h2>
+
+<div class="input-group">
+<label>나이</label>
+<input type="number" id="age">
+</div>
+
+<div class="input-group">
+<label>몸무게</label>
+<input type="number" id="weight">
+</div>
+</div>
+
+<div id="schedule" class="section">
+<h2>복용 스케줄</h2>
+
+<div class="input-group">
+<label>약 이름</label>
+<input type="text" id="medicineName">
+</div>
+
+<div class="input-group">
+<label>복용 시간</label>
+<input type="time" id="medicineTime">
+</div>
+
+<button class="main-button" onclick="addMedication()">
++ 약 추가
+</button>
+
+<div id="medicationList">
+<div class="empty">
+아직 추가된 약이 없습니다.
+</div>
+</div>
+</div>
+
+<div id="medicine" class="section">
+<h2>증상으로 약 찾기</h2>
+
+<div class="symptoms">
+<button onclick="recommendMedicine('두통')">두통</button>
+<button onclick="recommendMedicine('기침')">기침</button>
+<button onclick="recommendMedicine('감기')">감기</button>
+<button onclick="recommendMedicine('복통')">복통</button>
+<button onclick="recommendMedicine('알레르기')">알레르기</button>
+</div>
+
+<div class="recommend-box" id="recommendBox">
+증상을 선택하세요.
+</div>
+</div>
+
+<div id="pharmacy" class="section">
+<h2>주변 약국</h2>
+<div class="recommend-box">
+행복약국 - 450m<br>
+중앙약국 - 1.2km
+</div>
+</div>
+
+</div>
+
+<script>
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = 'ko-KR';
+    speech.rate = 0.9;
+
+    window.speechSynthesis.speak(speech);
+  }
+}
+
+function showMenu(menuId, buttonElement) {
+  const sections = document.querySelectorAll('.section');
+
+  sections.forEach(section => {
+    section.classList.remove('active');
+  });
+
+  document.getElementById(menuId).classList.add('active');
+
+  const buttons = document.querySelectorAll('.menu-buttons button');
+
+  buttons.forEach(button => {
+    button.classList.remove('active');
+  });
+
+  buttonElement.classList.add('active');
+}
+
+function addMedication() {
+  const medicineName = document.getElementById('medicineName').value;
+  const medicineTime = document.getElementById('medicineTime').value;
+
+  if (!medicineName || !medicineTime) {
+    alert('약 이름과 시간을 입력해주세요.');
+    return;
+  }
+
+  const medicationList = document.getElementById('medicationList');
+
+  if (medicationList.innerHTML.includes('아직 추가된 약이 없습니다')) {
+    medicationList.innerHTML = '';
+  }
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const timerId = 'timer-' + Date.now();
+
+  card.innerHTML = `
+    <button class="close-button" onclick="removeMedication(this)">
+      ×
+    </button>
+
+    <h3>${medicineName}</h3>
+
+    <div class="timer-box" id="${timerId}">
+      알림까지 계산 중...
+    </div>
+  `;
+
+  medicationList.appendChild(card);
+
+  speak(medicineName + '이 추가되었습니다');
+
+  startCountdown(timerId, medicineName, medicineTime, card);
+
+  document.getElementById('medicineName').value = '';
+  document.getElementById('medicineTime').value = '';
+}
+
+function startCountdown(timerId, name, time, card) {
+  const timerElement = document.getElementById(timerId);
+
+  const target = new Date();
+  const parts = time.split(':');
+
+  target.setHours(parts[0]);
+  target.setMinutes(parts[1]);
+  target.setSeconds(0);
+
+  if (target.getTime() <= new Date().getTime()) {
+    target.setDate(target.getDate() + 1);
+  }
+
+  const interval = setInterval(() => {
+    const now = new Date();
+    const diff = target.getTime() - now.getTime();
+
+    if (diff <= 0) {
+      clearInterval(interval);
+
+      speak(name + ' 복용 시간입니다. 약을 복용해주세요');
+
+      setTimeout(() => {
+        alert(name + ' 복용 시간입니다!');
+
+        if (card && card.parentNode) {
+          card.remove();
+        }
+
+        if (medicationList.children.length === 0) {
+          medicationList.innerHTML = '<div class="empty">아직 추가된 약이 없습니다.</div>';
+        }
+      }, 500);
+
+      return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    timerElement.innerHTML =
+      '알림까지 ' +
+      hours + '시간 ' +
+      minutes + '분 ' +
+      seconds + '초';
+
+  }, 1000);
+}
+
+function removeMedication(button) {
+  const card = button.parentElement;
+
+  if (card) {
+    card.remove();
+    speak('약이 삭제되었습니다');
+  }
+
+  const medicationList = document.getElementById('medicationList');
+
+  if (medicationList.children.length === 0) {
+    medicationList.innerHTML = '<div class="empty">아직 추가된 약이 없습니다.</div>';
+  }
+}
+
+function recommendMedicine(symptom) {
+  const age = Number(document.getElementById('age').value);
+  const weight = Number(document.getElementById('weight').value);
+
+  const data = {
+    두통: ['타이레놀', '1회 1정', '빈속 복용 주의'],
+    기침: ['기침 시럽', '1회 10밀리리터', '졸음 주의'],
+    감기: ['종합 감기약', '1회 2정', '중복 복용 주의'],
+    복통: ['위장약', '1회 1정', '지속 시 병원 방문'],
+    알레르기: ['항히스타민제', '1회 1정', '졸음 주의']
+  };
+
+  const info = data[symptom];
+
+  let dosage = info[1];
+
+  if (age < 15 || weight < 45) {
+    dosage = '소아 복용량';
+  }
+
+  document.getElementById('recommendBox').innerHTML = `
+    <strong>증상:</strong> ${symptom}<br>
+    <strong>추천 약:</strong> ${info[0]}<br>
+    <strong>복용량:</strong> ${dosage}<br>
+    <strong>주의사항:</strong> ${info[2]}
+  `;
+
+  const message =
+    symptom + ' 증상에 추천하는 약은 ' +
+    info[0] + ' 입니다. ' +
+    info[0] + '은 ' +
+    dosage + ' 복용하시며 ' +
+    info[2] + '하세요.';
+
+  speak(message);
+}
+</script>
+
+</body>
+</html>
