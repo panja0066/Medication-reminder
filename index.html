@@ -395,16 +395,56 @@
           </div>
         </div>
 
-        <button class="alert-button" onclick="setAlert('${medicineName}', '${medicineTime}')">
-          알림 설정
-        </button>
+        <div class="alert-button" id="timer-${medicineName}-${medicineTime}">
+          알림까지 계산 중...
+        </div>
       `;
 
       medicationList.appendChild(card);
 
+      setAlert(medicineName, medicineTime);
+      startCountdown(medicineName, medicineTime);
+
       document.getElementById('medicineName').value = '';
       document.getElementById('medicineTime').value = '';
       
+    }
+
+    function startCountdown(name, time) {
+      const timerId = 'timer-' + name + '-' + time;
+      const timerElement = document.getElementById(timerId);
+
+      function updateTimer() {
+        const now = new Date();
+        const target = new Date();
+
+        const parts = time.split(':');
+
+        target.setHours(parts[0]);
+        target.setMinutes(parts[1]);
+        target.setSeconds(0);
+
+        if (target.getTime() <= now.getTime()) {
+          target.setDate(target.getDate() + 1);
+        }
+
+        const diff = target.getTime() - now.getTime();
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        if (timerElement) {
+          timerElement.innerHTML =
+            '알림까지 ' +
+            hours + '시간 ' +
+            minutes + '분 ' +
+            seconds + '초';
+        }
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
     }
 
     function setAlert(name, time) {
@@ -497,4 +537,3 @@
 </body>
 </html>
 ```
-
