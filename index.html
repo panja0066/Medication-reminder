@@ -288,11 +288,11 @@
       <h2>증상으로 약 찾기</h2>
 
       <div class="symptoms">
-        <button onclick="recommendMedicine('두통'); speak('두통 증상 추천 약입니다')">두통</button>
-        <button onclick="recommendMedicine('기침'); speak('기침 증상 추천 약입니다')">기침</button>
-        <button onclick="recommendMedicine('감기'); speak('감기 증상 추천 약입니다')">감기</button>
-        <button onclick="recommendMedicine('복통'); speak('복통 증상 추천 약입니다')">복통</button>
-        <button onclick="recommendMedicine('알레르기'); speak('알레르기 증상 추천 약입니다')">알레르기</button>
+        <button onclick="recommendMedicine('두통')">두통</button>
+        <button onclick="recommendMedicine('기침')">기침</button>
+        <button onclick="recommendMedicine('감기')">감기</button>
+        <button onclick="recommendMedicine('복통')">복통</button>
+        <button onclick="recommendMedicine('알레르기')">알레르기</button>
       </div>
 
       <div class="recommend-box" id="recommendBox">
@@ -480,6 +480,8 @@
     }
 
     function recommendMedicine(symptom) {
+      // 음성 안내 기능
+      // 증상별로 자연스럽게 읽어주기 위한 코드
       const age = Number(document.getElementById('age').value);
       const weight = Number(document.getElementById('weight').value);
 
@@ -531,7 +533,29 @@
         <strong>주의사항:</strong> ${info.warning}
       `;
 
-      speak(symptom + ' 추천 약은 ' + info.medicine + '이며 복용량은 ' + dosage + '입니다');
+      let message = '';
+
+      if (symptom === '두통') {
+        message = '두통 증상에 추천하는 약은 타이레놀 입니다. 타이레놀은 ' + dosage + ' 섭취하시며 빈속 복용에 주의하세요.';
+      }
+
+      if (symptom === '기침') {
+        message = '기침 증상에 추천하는 약은 기침 시럽 입니다. 기침 시럽은 ' + dosage + ' 복용하시며 졸음 유발 가능성에 주의하세요.';
+      }
+
+      if (symptom === '감기') {
+        message = '감기 증상에 추천하는 약은 종합 감기약 입니다. 종합 감기약은 ' + dosage + ' 복용하시며 다른 감기약과 중복 복용하지 않도록 주의하세요.';
+      }
+
+      if (symptom === '복통') {
+        message = '복통 증상에 추천하는 약은 위장약 입니다. 위장약은 ' + dosage + ' 복용하시며 복통이 지속되면 병원을 방문하세요.';
+      }
+
+      if (symptom === '알레르기') {
+        message = '알레르기 증상에 추천하는 약은 항히스타민제 입니다. 항히스타민제는 ' + dosage + ' 복용하시며 졸음에 주의하세요.';
+      }
+
+      speak(message);
     }
   </script>
 </body>
