@@ -276,6 +276,14 @@
         + 약 추가
       </button>
 
+      <button 
+  class="main-button"
+  onclick="removeMedication(this)"
+  style="background:#ef4444; margin-top:10px;"
+>
+  약 삭제
+</button>
+
       <div id="medicationList" style="margin-top: 20px;">
         <div class="empty">
           아직 추가된 약이 없습니다.<br>
@@ -583,6 +591,26 @@
       speak(message);
     }
   </script>
+function removeMedication(button) {
+  const card = button.parentElement;
+
+  if (card) {
+    card.remove();
+
+    speak('약이 삭제되었습니다');
+  }
+
+  const medicationList = document.getElementById('medicationList');
+
+  if (medicationList.children.length === 0) {
+    medicationList.innerHTML = `
+      <div class="empty">
+        아직 추가된 약이 없습니다.
+      </div>
+    `;
+  }
+}
+</script>
 </body>
 </html>
 ```
