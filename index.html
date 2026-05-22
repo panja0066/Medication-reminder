@@ -475,6 +475,25 @@
 
         setTimeout(function () {
           alert(name + ' 복용 시간입니다!');
+
+          const cards = document.querySelectorAll('.card');
+
+          cards.forEach(card => {
+            if (card.innerHTML.includes(name) && card.innerHTML.includes(time)) {
+              card.remove();
+            }
+          });
+
+          const medicationList = document.getElementById('medicationList');
+
+          if (medicationList.children.length === 0) {
+            medicationList.innerHTML = `
+              <div class="empty">
+                아직 추가된 약이 없습니다.<br>
+                인간은 입력하기 전까지 데이터를 잃어버린 존재다.
+              </div>
+            `;
+          }
         }, 500);
       }, diff);
     }
